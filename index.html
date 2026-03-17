@@ -1126,12 +1126,19 @@ async function publishNews(){
   let aiReason='';
   try {
     // 긍정/부정 키워드로 호재/악재 판단
-    const positiveWords=['성장','상승','호재','증가','확대','돌파','신기록','흑자','수주','계약','개발','출시','투자','급등','기대','수혜','회복','강세'];
-    const negativeWords=['하락','악재','감소','축소','위기','적자','손실','규제','제재','파산','리콜','하락','급락','우려','침체','약세','부진'];
-    const text=(hl+' '+(ct||'')).toLowerCase();
-    const posScore=positiveWords.filter(w=>text.includes(w)).length;
-    const negScore=negativeWords.filter(w=>text.includes(w)).length;
-    const isPositive=posScore>=negScore;
+    const positiveWords=['성장','상승','호재','증가','확대','돌파','신기록','흑자','수주','계약','개발','출시','투자','기대','수혜','회복','강세','급등','호황','개선','혁신','협력','수출','증설','양산','흥행','히트','1위','성공'];
+    const negativeWords=['하락','악재','감소','축소','위기','적자','손실','규제','제재','파산','리콜','급락','우려','침체','약세','부진','실패','취소','중단','지연','파업','소송','벌금','리스크','하향','둔화','충격','붕괴','폭락','최저'];
+    const fullText=(hl+' '+(ct||''));
+    const posScore=positiveWords.filter(w=>fullText.includes(w)).length;
+    const negScore=negativeWords.filter(w=>fullText.includes(w)).length;
+
+    // 점수 같으면 제목 기준으로 판단 (제목 가중치 2배)
+    const titlePosScore=positiveWords.filter(w=>hl.includes(w)).length*2;
+    const titleNegScore=negativeWords.filter(w=>hl.includes(w)).length*2;
+    const totalPos=posScore+titlePosScore;
+    const totalNeg=negScore+titleNegScore;
+
+    const isPositive=totalPos>totalNeg;
     const direction=isPositive?1:-1;
 
     // 섹터별 영향도 가중치
